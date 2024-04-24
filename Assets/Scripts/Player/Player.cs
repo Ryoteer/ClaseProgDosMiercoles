@@ -13,15 +13,18 @@ public class Player : MonoBehaviour
     [SerializeField] private string _onJumpName = "onJump";
     [SerializeField] private string _isGroundedName = "isGrounded";
     [SerializeField] private string _onAttackName = "onAttack";
+    [SerializeField] private string _onAreaAttackName = "onAreaAttack";
 
     [Header("<color=orange>Inputs</color>")]
     [SerializeField] private KeyCode _attackKey = KeyCode.Mouse0;
+    [SerializeField] private KeyCode _areaAttackKey = KeyCode.Mouse1;
     [SerializeField] private KeyCode _jumpKey = KeyCode.Space;
 
     [Header("<color=orange>Physics</color>")]
     [SerializeField] private Transform _attackOrigin;
     [SerializeField] private float _attackRange = 1f;
     [SerializeField] private LayerMask _attackMask;
+    [SerializeField] private float _areaAttackRadius = 2f;
     [SerializeField] private float _groundRange = .75f;
     [SerializeField] private LayerMask _groundMask;
     [SerializeField] private float _moveRange = .75f;
@@ -68,11 +71,15 @@ public class Player : MonoBehaviour
         {
             _anim.SetTrigger(_onAttackName);
         }
+        else if(Input.GetKeyDown(_areaAttackKey) && _canAttack)
+        {
+            _anim.SetTrigger((_onAreaAttackName));
+        }
 
         if (Input.GetKeyDown(_jumpKey) && IsGrounded())
         {
             _anim.SetTrigger(_onJumpName);
-        }
+        }        
     }
 
     private void FixedUpdate()
@@ -90,6 +97,16 @@ public class Player : MonoBehaviour
         if(Physics.Raycast(_attackRay, out _attackHit, _attackRange, _attackMask))
         {
             Debug.Log($"El personaje le pegó al objeto de nombre <color=red>{_attackHit.collider.name}</color>.");
+        }
+    }
+
+    public void AreaAttack()
+    {
+        Collider[] hitEnemies = Physics.OverlapSphere(_attackOrigin.position, _areaAttackRadius, _attackMask);
+
+        foreach(Collider enemy in hitEnemies)
+        {
+            print($"El enemigo de nombre <color=red>{enemy.name}</color> fué afectado por el ataque en área.");
         }
     }
 
@@ -129,7 +146,9 @@ public class Player : MonoBehaviour
 
     private bool IsGrounded()
     {
-        _transformOffset = new Vector3(transform.position.x, transform.position.y + _groundRange / 4, transform.position.z);
+        _transformOffset = new Vector3(transform.position.x, 
+                                       transform.position.y + _groundRange / 4,
+                                       transform.position.z);
 
         _groundRay = new Ray(_transformOffset, -transform.up);
 

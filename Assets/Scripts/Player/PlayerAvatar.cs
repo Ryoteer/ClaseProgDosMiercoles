@@ -15,6 +15,10 @@ public class PlayerAvatar : MonoBehaviour
     {
         _parent.Attack();
     }
+    public void AreaAttack()
+    {
+        _parent.AreaAttack();
+    }
 
     public void AttackState(int state)
     {
