@@ -363,13 +363,16 @@ MonoBehaviour:
   _onJumpName: onJump
   _isGroundedName: isGrounded
   _onAttackName: onAttack
+  _onAreaAttackName: onAreaAttack
   _attackKey: 323
+  _areaAttackKey: 324
   _jumpKey: 32
   _attackOrigin: {fileID: 5276064283763895995}
   _attackRange: 1
   _attackMask:
     serializedVersion: 2
     m_Bits: 256
+  _areaAttackRadius: 2
   _groundRange: 0.75
   _groundMask:
     serializedVersion: 2
@@ -378,7 +381,7 @@ MonoBehaviour:
   _moveMask:
     serializedVersion: 2
     m_Bits: 128
-  _attackDmg: 5
+  _attackDmg: 20
   _jumpForce: 5
   _moveSpeed: 5
 --- !u!1 &1615403366421121277

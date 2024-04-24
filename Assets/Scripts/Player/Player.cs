@@ -96,7 +96,10 @@ public class Player : MonoBehaviour
 
         if(Physics.Raycast(_attackRay, out _attackHit, _attackRange, _attackMask))
         {
-            Debug.Log($"El personaje le pegó al objeto de nombre <color=red>{_attackHit.collider.name}</color>.");
+            if (_attackHit.collider.GetComponent<Enemy>())
+            {
+                _attackHit.collider.GetComponent<Enemy>().SetHP(-_attackDmg);
+            }
         }
     }
 
@@ -106,7 +109,9 @@ public class Player : MonoBehaviour
 
         foreach(Collider enemy in hitEnemies)
         {
-            print($"El enemigo de nombre <color=red>{enemy.name}</color> fué afectado por el ataque en área.");
+            if (!enemy.GetComponent<Enemy>()) return;
+
+            enemy.GetComponent<Enemy>().SetHP(-_attackDmg);
         }
     }
 
