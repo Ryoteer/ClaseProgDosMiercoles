@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CamFollower : MonoBehaviour
+public class CamFollower : MonoBehaviour, IUpdate
 {
     [Header("<color=blue>Components</color>")]
     [SerializeField] private Transform _target;
@@ -11,10 +11,16 @@ public class CamFollower : MonoBehaviour
 
     private void Start()
     {
+        UpdateManager.Instance.AddObject(this);
+
         _offset = transform.position - _target.position;
     }
 
-    private void LateUpdate()
+    public void ArtUpdate() { }
+
+    public void ArtFixedUpdate() { }
+
+    public void ArtLateUpdate()
     {
         _finalCamPos = _target.position + _offset;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IUpdate
 {
     [Header("<color=red>AI</color>")]
     [SerializeField] private Transform _target;
@@ -18,16 +18,18 @@ public class Enemy : MonoBehaviour
 
     private void Start()
     {
+        UpdateManager.Instance.AddObject(this);
+
         _agent = GetComponent<NavMeshAgent>();
         _actualHP = _maxHP;
     }
 
-    private void Update()
+    public void ArtUpdate()
     {
-        if((_target.position - transform.position).sqrMagnitude 
+        if ((_target.position - transform.position).sqrMagnitude
             <= Mathf.Pow(_stoppingDist, 2))
         {
-            if(!_agent.isStopped) _agent.isStopped = true;
+            if (!_agent.isStopped) _agent.isStopped = true;
 
             transform.LookAt(_target);
         }
@@ -37,10 +39,12 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    public void ArtFixedUpdate()
     {
         _agent.SetDestination(_target.position);
     }
+
+    public void ArtLateUpdate() { }
 
     public void SetHP(int modifier)
     {
@@ -63,5 +67,5 @@ public class Enemy : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
+    }    
 }

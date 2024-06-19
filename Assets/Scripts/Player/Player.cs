@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-[RequireComponent(typeof(Rigidbody))]
-public class Player : MonoBehaviour
+[RequireComponent(typeof(Rigidbody), typeof(AudioSource))]
+public class Player : MonoBehaviour, IUpdate
 {
     [Header("<color=orange>Animation</color>")]
     [SerializeField] private Animator _anim;
@@ -14,6 +15,10 @@ public class Player : MonoBehaviour
     [SerializeField] private string _isGroundedName = "isGrounded";
     [SerializeField] private string _onAttackName = "onAttack";
     [SerializeField] private string _onAreaAttackName = "onAreaAttack";
+
+    [Header("<color=orange>Audio</color>")]
+    [SerializeField] private AudioClip[] _stepClips;
+    [SerializeField] private AudioClip[] _attackClips;
 
     [Header("<color=orange>Inputs</color>")]
     [SerializeField] private KeyCode _attackKey = KeyCode.Mouse0;
@@ -35,6 +40,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float _jumpForce = 5f;
     [SerializeField] private float _moveSpeed = 5f;
 
+    private AudioSource _source;
     private Rigidbody _rb;
 
     private float _xAxis, _zAxis;
@@ -47,9 +53,13 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        UpdateManager.Instance.AddObject(this);
+
         _rb = GetComponent<Rigidbody>();
         _rb.constraints = RigidbodyConstraints.FreezeRotation;
         _rb.angularDrag = 1f;
+
+        _source = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -57,7 +67,7 @@ public class Player : MonoBehaviour
         if (!_anim) _anim = GetComponentInChildren<Animator>();
     }
 
-    private void Update()
+    public void ArtUpdate()
     {
         _xAxis = Input.GetAxis("Horizontal");
         _anim.SetFloat(_xAxisName, _xAxis);
@@ -71,7 +81,7 @@ public class Player : MonoBehaviour
         {
             _anim.SetTrigger(_onAttackName);
         }
-        else if(Input.GetKeyDown(_areaAttackKey) && _canAttack)
+        else if (Input.GetKeyDown(_areaAttackKey) && _canAttack)
         {
             _anim.SetTrigger((_onAreaAttackName));
         }
@@ -79,16 +89,25 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(_jumpKey) && IsGrounded())
         {
             _anim.SetTrigger(_onJumpName);
-        }        
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            UpdateManager.Instance.Clear();
+
+            SceneManager.LoadScene("MainMenu");
+        }
     }
 
-    private void FixedUpdate()
+    public void ArtFixedUpdate()
     {
-        if((_xAxis != 0 || _zAxis != 0) && !IsBlocked(_xAxis, _zAxis))
+        if ((_xAxis != 0 || _zAxis != 0) && !IsBlocked(_xAxis, _zAxis))
         {
             Movement(_xAxis, _zAxis);
         }
     }
+
+    public void ArtLateUpdate() { }
 
     public void Attack()
     {
@@ -133,6 +152,30 @@ public class Player : MonoBehaviour
         _rb.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
     }
 
+    public void PlayStepClip()
+    {
+        if (_source.isPlaying)
+        {
+            _source.Stop();
+        }
+
+        _source.clip = _stepClips[Random.Range(0, _stepClips.Length)];
+
+        _source.Play();
+    }
+
+    public void PlayAttackClip()
+    {
+        if (_source.isPlaying)
+        {
+            _source.Stop();
+        }
+
+        _source.clip = _attackClips[Random.Range(0, _attackClips.Length)];
+
+        _source.Play();
+    }
+
     private void Movement(float xAxis, float zAxis)
     {
         _dir = (transform.right * xAxis + transform.forward * zAxis).normalized;
@@ -168,5 +211,5 @@ public class Player : MonoBehaviour
         Gizmos.DrawRay(_groundRay);
         Gizmos.color = Color.green;
         Gizmos.DrawRay(_attackRay);
-    }
+    }    
 }
